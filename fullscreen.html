@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrickMitra - Fullscreen Broadcast Scorecard</title>
+    <link rel="stylesheet" href="app.css">
+    <style>
+        body {
+            background-color: var(--bg-dark);
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="fullscreen-container" id="fullscreen-board" style="display: none;">
+        <div class="fullscreen-header">
+            <div class="logo-container">
+                <img src="logo.png" alt="CrickMitra Logo" class="logo-img">
+                <h1 class="logo-text">Crick<span>Mitra</span></h1>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 1.8rem; font-weight:800; color:var(--accent);" id="full-score">0/0</div>
+                <div style="font-size: 1.1rem; color:var(--text-muted);" id="full-overs">(0.0 Overs)</div>
+            </div>
+        </div>
+
+        <div style="background-color: rgba(255,255,255,0.03); border:1px solid var(--card-border); padding: 1rem; border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+            <h2 id="full-teams" style="font-weight: 800; font-size:1.6rem; letter-spacing:0.5px;">TEAM A vs TEAM B</h2>
+            <div id="full-status-desc" style="font-size: 0.95rem; color:var(--text-muted); text-transform: uppercase; font-weight:600; margin-top: 0.25rem;">Innings 1</div>
+        </div>
+
+        <!-- Full Scorecard Grid -->
+        <div class="fullscreen-scoreboard-grid">
+            <!-- Left Side: Batting & Bowling Stats -->
+            <div>
+                <div class="fullscreen-section-title">
+                    <span>Batting Scorecard</span>
+                    <span style="font-size:0.9rem; color:var(--text-muted);" id="full-bat-team-title">Team A</span>
+                </div>
+                <table class="sport-table" style="background-color:rgba(15,23,42,0.4); border:1px solid var(--card-border); border-radius:12px; overflow:hidden;">
+                    <thead>
+                        <tr>
+                            <th>Batsman</th>
+                            <th>Status</th>
+                            <th>Runs</th>
+                            <th>Balls</th>
+                            <th>4s</th>
+                            <th>6s</th>
+                            <th>S/R</th>
+                        </tr>
+                    </thead>
+                    <tbody id="full-bat-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+
+                <div class="fullscreen-section-title" style="margin-top: 2rem;">
+                    <span>Bowling Summary</span>
+                    <span style="font-size:0.9rem; color:var(--text-muted);" id="full-bowl-team-title">Team B</span>
+                </div>
+                <table class="sport-table" style="background-color:rgba(15,23,42,0.4); border:1px solid var(--card-border); border-radius:12px; overflow:hidden;">
+                    <thead>
+                        <tr>
+                            <th>Bowler</th>
+                            <th>Overs</th>
+                            <th>Maidens</th>
+                            <th>Runs</th>
+                            <th>Wkts</th>
+                            <th>Econ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="full-bowl-body">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Right Side: FOW, Extras, Match info -->
+            <div>
+                <!-- Extras & Target -->
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div class="card-header-sport">
+                        <h3 class="card-title-sport">📈 Innings Summary</h3>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--card-border); padding-bottom:0.5rem;">
+                            <span style="color:var(--text-muted);">Extras</span>
+                            <span id="full-extras" style="font-weight:600;">WD: 0, NB: 0, BY: 0, LB: 0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--card-border); padding-bottom:0.5rem;">
+                            <span style="color:var(--text-muted);">Current Run Rate</span>
+                            <span id="full-crr" style="font-weight:600; color:var(--accent);">0.00</span>
+                        </div>
+                        <div id="full-rrr-row" style="display:none; justify-content:space-between; border-bottom:1px solid var(--card-border); padding-bottom:0.5rem;">
+                            <span style="color:var(--text-muted);">Required Run Rate</span>
+                            <span id="full-rrr" style="font-weight:600; color:var(--accent);">0.00</span>
+                        </div>
+                        <div id="full-target-row" style="display:none; justify-content:space-between;">
+                            <span style="color:var(--text-muted);">Target Runs</span>
+                            <span id="full-target" style="font-weight:700; color:var(--accent);">100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fall of Wickets -->
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div class="card-header-sport">
+                        <h3 class="card-title-sport">📉 Fall of Wickets</h3>
+                    </div>
+                    <table class="sport-table">
+                        <thead>
+                            <tr>
+                                <th>Wkt</th>
+                                <th>Score</th>
+                                <th>Over</th>
+                                <th>Batsman</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-fow-body">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Match Results (Visible if ended) -->
+                <div id="full-match-result-card" class="match-summary-popup" style="display: none;">
+                    <h3 style="color: var(--accent); font-size: 1.6rem; margin-bottom: 0.5rem; text-transform: uppercase;">🏆 Match Result</h3>
+                    <div id="full-result-text" style="font-weight:800; font-size:1.4rem;">Team A won by 10 runs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ready Screen if no match active -->
+    <div id="fullscreen-ready" style="max-width: 600px; margin: 8rem auto; text-align: center;" class="card">
+        <img src="logo.png" alt="CrickMitra Logo" style="height: 120px; object-fit: contain; margin-bottom: 1.5rem;">
+        <h2 style="font-size:2rem; font-weight:800; color:var(--accent); margin-bottom: 0.5rem;">CrickMitra Broadcaster</h2>
+        <p style="color: var(--text-muted);">Waiting for the match to be initialized in the Scorer Panel...</p>
+    </div>
+
+    <script>
+        let fsState = null;
+
+        function formatOvers(balls) {
+            const overs = Math.floor(balls / 6);
+            const remainingBalls = balls % 6;
+            return `${overs}.${remainingBalls}`;
+        }
+
+        function renderFullscreen() {
+            if (!fsState || !fsState.setupComplete) {
+                document.getElementById('fullscreen-board').style.display = 'none';
+                document.getElementById('fullscreen-ready').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('fullscreen-board').style.display = 'block';
+            document.getElementById('fullscreen-ready').style.display = 'none';
+
+            const inn = fsState.innings === 1 ? fsState.inn1 : fsState.inn2;
+
+            // 1. Header Information
+            document.getElementById('full-score').textContent = `${inn.totalRuns}/${inn.wickets}`;
+            document.getElementById('full-overs').textContent = `(${formatOvers(inn.ballsBowled)} Overs)`;
+            document.getElementById('full-teams').textContent = `${fsState.matchSetup.team1Name} vs ${fsState.matchSetup.team2Name}`;
+            
+            let statusText = `Innings ${fsState.innings} - ${fsState.currentBattingTeam} Batting`;
+            if (fsState.matchEnded) {
+                statusText = 'Match Finished';
+            }
+            document.getElementById('full-status-desc').textContent = statusText;
+
+            // Titles
+            document.getElementById('full-bat-team-title').textContent = fsState.currentBattingTeam;
+            document.getElementById('full-bowl-team-title').textContent = fsState.currentBowlingTeam;
+
+            // 2. Batting Scorecard Table
+            const batBody = document.getElementById('full-bat-body');
+            batBody.innerHTML = '';
+            
+            const activeStrikerIndex = fsState.strikerIndex;
+            const activeNonStrikerIndex = fsState.nonStrikerIndex;
+
+            (inn.battingCard || []).forEach((b, index) => {
+                // Only show players who have batted (status is not DNB)
+                if (b.status !== 'DNB') {
+                    const row = document.createElement('tr');
+                    
+                    let strikerDot = '';
+                    if (!fsState.matchEnded) {
+                        if (index === activeStrikerIndex) {
+                            row.className = 'active-row';
+                            strikerDot = '<span class="striker-dot"></span>';
+                        } else if (index === activeNonStrikerIndex) {
+                            row.className = 'active-row';
+                        }
+                    }
+
+                    const sr = b.balls > 0 ? ((b.runs / b.balls) * 100).toFixed(1) : '0.0';
+                    row.innerHTML = `
+                        <td>${strikerDot}${b.name}</td>
+                        <td style="color:var(--text-muted); font-size:0.85rem;">${b.status}</td>
+                        <td><strong>${b.runs}</strong></td>
+                        <td>${b.balls}</td>
+                        <td>${b.fours}</td>
+                        <td>${b.sixes}</td>
+                        <td>${sr}</td>
+                    `;
+                    batBody.appendChild(row);
+                }
+            });
+
+            // 3. Bowling Summary Table
+            const bowlBody = document.getElementById('full-bowl-body');
+            bowlBody.innerHTML = '';
+
+            (inn.bowlingCard || []).forEach((bowler, index) => {
+                // Show bowlers who have bowled at least one ball
+                if (bowler.balls > 0 || index === fsState.currentBowlerIndex) {
+                    const row = document.createElement('tr');
+                    
+                    if (!fsState.matchEnded && index === fsState.currentBowlerIndex) {
+                        row.className = 'active-row';
+                    }
+
+                    const econ = bowler.balls > 0 ? ((bowler.runs / bowler.balls) * 6).toFixed(2) : '0.00';
+                    row.innerHTML = `
+                        <td>${bowler.name}</td>
+                        <td><strong>${bowler.overs}</strong></td>
+                        <td>${bowler.maidens}</td>
+                        <td>${bowler.runs}</td>
+                        <td><strong>${bowler.wickets}</strong></td>
+                        <td>${econ}</td>
+                    `;
+                    bowlBody.appendChild(row);
+                }
+            });
+
+            // 4. Extras Summary
+            const ext = inn.extras || { wide: 0, noball: 0, bye: 0, legbye: 0 };
+            document.getElementById('full-extras').textContent = 
+                `WD: ${ext.wide}, NB: ${ext.noball}, BY: ${ext.bye}, LB: ${ext.legbye}`;
+
+            // 5. Run Rates
+            const crr = inn.ballsBowled > 0 ? ((inn.totalRuns / inn.ballsBowled) * 6).toFixed(2) : '0.00';
+            document.getElementById('full-crr').textContent = crr;
+
+            // Target & RRR Row Toggle
+            const rrrRow = document.getElementById('full-rrr-row');
+            const targetRow = document.getElementById('full-target-row');
+            
+            if (fsState.innings === 2 && fsState.target && !fsState.matchEnded) {
+                rrrRow.style.display = 'flex';
+                targetRow.style.display = 'flex';
+                document.getElementById('full-target').textContent = fsState.target;
+                
+                const runsNeeded = fsState.target - inn.totalRuns;
+                const ballsRemaining = (fsState.matchSetup.maxOvers * 6) - inn.ballsBowled;
+                const rrr = ballsRemaining > 0 ? ((runsNeeded / ballsRemaining) * 6).toFixed(2) : '0.00';
+                document.getElementById('full-rrr').textContent = rrr;
+            } else {
+                rrrRow.style.display = 'none';
+                targetRow.style.display = 'none';
+            }
+
+            // 6. Fall of Wickets
+            const fowBody = document.getElementById('full-fow-body');
+            fowBody.innerHTML = '';
+            
+            if (inn.fallOfWickets.length === 0) {
+                fowBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No wickets fallen yet</td></tr>';
+            } else {
+                inn.fallOfWickets.forEach(f => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${f.wickets}</strong></td>
+                        <td>${f.score}/${f.wickets}</td>
+                        <td>${f.over}</td>
+                        <td>${f.batsman}</td>
+                    `;
+                    fowBody.appendChild(row);
+                });
+            }
+
+            // 7. Match Result Card
+            const resultCard = document.getElementById('full-match-result-card');
+            if (fsState.matchEnded) {
+                resultCard.style.display = 'block';
+                document.getElementById('full-result-text').textContent = fsState.matchResult;
+            } else {
+                resultCard.style.display = 'none';
+            }
+        }
+
+        window.updateFromParent = function(parentState) {
+            fsState = parentState;
+            renderFullscreen();
+        };
+
+        // Initialize state on load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.opener && window.opener.state) {
+                fsState = window.opener.state;
+                renderFullscreen();
+            } else {
+                const saved = localStorage.getItem('crickmitra_match_state');
+                if (saved) {
+                    try {
+                        fsState = JSON.parse(saved);
+                        renderFullscreen();
+                    } catch(e) {
+                        console.error(e);
+                    }
+                }
+            }
+        });
+
+        // Broadcast listener for instant fullscreen update
+        const fsChannel = new BroadcastChannel('crickmitra_match');
+        fsChannel.onmessage = (event) => {
+            if (event.data && event.data.type === 'STATE_UPDATE') {
+                fsState = event.data.state;
+                renderFullscreen();
+            }
+        };
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'crickmitra_match_state' && event.newValue) {
+                fsState = JSON.parse(event.newValue);
+                renderFullscreen();
+            }
+        });
+
+        // Poll the local API server every 300ms (for OBS Studio CEF cross-process sync)
+        // Only run polling if this page is not opened as a direct popup (to avoid parent-child race conditions)
+        if (!window.opener) {
+            setInterval(() => {
+                fetch('http://127.0.0.1:8000/api/state')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.setupComplete) {
+                            const dataStr = JSON.stringify(data);
+                            const currentStr = JSON.stringify(fsState);
+                            if (dataStr !== currentStr) {
+                                fsState = data;
+                                renderFullscreen();
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        // Fail silently when server is not running
+                    });
+            }, 300);
+        }
+    </script>
+</body>
+</html>

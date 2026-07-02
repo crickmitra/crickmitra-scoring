@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrickMitra - YouTube Stream Overlay (Vertical Lower Third)</title>
+    <link rel="stylesheet" href="app.css">
+    <style>
+        /* Make body responsive to fit both 1920x1080 and 1080x1920 viewports dynamically */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: transparent !important; /* Transparent background by default */
+            margin: 0;
+            padding: 0;
+        }
+
+        .obs-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .obs-body.chroma-green {
+            background-color: transparent !important;
+        }
+
+        .obs-body.chroma-blue {
+            background-color: transparent !important;
+        }
+
+        .obs-body.chroma-trans {
+            background-color: transparent !important;
+        }
+
+        /* CrickMitra Sporty Theme - Full Width Broadcast Banner (1920px) */
+        .stream-overlay-container {
+            position: absolute;
+            bottom: 25px; /* Moved 25px up from the bottom edge */
+            left: 0;
+            width: 100%; /* Spans full width (1920px in widescreen OBS / 1080px in vertical OBS) */
+            display: flex;
+            flex-direction: column;
+            font-family: 'Outfit', sans-serif;
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.4);
+            overflow: visible; /* Lets the white cards overlap downwards */
+        }
+
+        /* Middle Deck: CrickMitra Branding Gradient */
+        .overlay-mid-deck {
+            height: 100px; /* Height set to 100px */
+            background: linear-gradient(90deg, #0B0F19 0%, #071D52 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .score-badge {
+            height: 100%;
+            background: #0E2F7F;
+            border-radius: 0 30px 30px 0; /* Curved right side */
+            border-right: 3px solid #FFB800; /* Gold vertical border */
+            padding: 0 3rem 0 3rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .score-badge span.score-val {
+            color: #FFB800; /* Gold Highlight Score */
+            margin-left: 12px;
+            font-size: 2.4rem;
+            text-shadow: 0 0 10px rgba(255, 184, 0, 0.4);
+        }
+
+        .overs-badge {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-left: 2rem;
+            flex-grow: 1;
+        }
+
+        /* Player whiteboard projecting downwards */
+        .player-white-box {
+            position: absolute;
+            top: 15px; /* Centered vertically inside 100px deck */
+            right: 3rem;
+            background: white;
+            color: black;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+            display: flex;
+            border: 1px solid #e2e8f0;
+            height: 110px; /* Taller box height */
+            z-index: 100;
+        }
+
+        .player-col {
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-width: 170px;
+            border-right: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .player-col:last-child {
+            border-right: none;
+        }
+
+        .player-lbl {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .player-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* Bottom Deck: White details banner */
+        .overlay-bottom-deck {
+            height: 90px; /* Height set to 90px */
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 0 3rem;
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .bottom-timeline {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            margin-right: 3rem;
+        }
+
+        .bottom-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #cbd5e1; /* grey default */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-dot.runs-4 {
+            background-color: #0E2F7F;
+            color: #FFB800;
+            border: 1px solid #FFB800;
+        }
+
+        .bottom-dot.runs-6 {
+            background: linear-gradient(135deg, #071D52 0%, #0E2F7F 100%);
+            color: #FFB800;
+            border: 1px solid #FFB800;
+        }
+
+        .bottom-dot.wicket-ball {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .bottom-dot.extra-ball {
+            background-color: #FFB800;
+            color: #071D52;
+        }
+
+        .bottom-crr-box {
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #475569;
+            letter-spacing: 0.5px;
+            font-size: 1.1rem;
+        }
+
+        /* Fullscreen Event Animations (Four, Six, Wicket) */
+        .fullscreen-anim-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .anim-ring {
+            position: absolute;
+            border: 8px solid #FFB800;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .anim-ring.active {
+            animation: ringExpand 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes ringExpand {
+            0% { width: 50px; height: 50px; opacity: 1; border-width: 15px; }
+            100% { width: 600px; height: 600px; opacity: 0; border-width: 1px; }
+        }
+
+        .anim-banner {
+            position: absolute;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(90deg, transparent, rgba(7, 29, 82, 0.95) 15%, rgba(14, 47, 127, 0.95) 50%, rgba(7, 29, 82, 0.95) 85%, transparent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: scaleY(0);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-top: 4px solid #FFB800;
+            border-bottom: 4px solid #FFB800;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+        }
+        .anim-banner.active {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        .anim-text {
+            font-size: 6rem;
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            text-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+            transform: scale(0.3);
+            opacity: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+        .anim-text.active {
+            animation: textZoom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes textZoom {
+            0% { transform: scale(0.3); opacity: 0; filter: blur(10px); }
+            70% { transform: scale(1.1); opacity: 1; filter: blur(0); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .anim-text.four-glow {
+            color: #FFB800;
+            text-shadow: 0 0 20px #FFB800, 0 0 40px #0E2F7F;
+        }
+        .anim-text.six-glow {
+            color: #FFB800;
+            text-shadow: 0 0 25px #FFB800, 0 0 50px #0E2F7F, 0 0 75px #0E2F7F;
+            animation: textZoom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, shake 0.5s infinite 0.5s;
+        }
+        .anim-text.wicket-glow {
+            color: #ef4444;
+            text-shadow: 0 0 25px #ef4444, 0 0 50px #000;
+            animation: textZoom 0.4s ease-out forwards, flashWicket 0.8s infinite 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-3px, 2px) rotate(-1deg); }
+            40% { transform: translate(2px, -1px) rotate(1deg); }
+            60% { transform: translate(-2px, -2px) rotate(0deg); }
+            80% { transform: translate(3px, 1px) rotate(1deg); }
+        }
+        @keyframes flashWicket {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .anim-sub {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(20px);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .anim-sub.active {
+            animation: subFadeIn 0.4s ease-out 0.3s forwards;
+        }
+        @keyframes subFadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Subtle Shine and Rotate animations */
+        .score-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        .score-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            animation: shineSweep 8s infinite ease-in-out;
+        }
+        @keyframes shineSweep {
+            0% { left: -150%; }
+            15% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        .player-white-box {
+            position: absolute;
+            overflow: hidden;
+        }
+        .player-white-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 47, 127, 0.08), transparent);
+            transform: skewX(-20deg);
+            animation: shineSweepWhite 10s infinite ease-in-out;
+            animation-delay: 2s;
+        }
+        @keyframes shineSweepWhite {
+            0% { left: -150%; }
+            15% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* Striker Active Pulse Dot Indicator */
+        .striker-active {
+            color: #0E2F7F !important;
+            position: relative;
+        }
+        .striker-active::before {
+            content: '●';
+            color: #FFB800;
+            font-size: 0.65rem;
+            margin-right: 5px;
+            vertical-align: middle;
+            display: inline-block;
+            animation: indicatorPulse 1.5s infinite alternate;
+        }
+        @keyframes indicatorPulse {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.25); }
+        }
+
+        /* Rotating Banner Slides */
+        .info-slide {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .info-slide.active {
+            top: 0;
+            opacity: 1;
+        }
+        .info-slide.exit {
+            top: -100%;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="obs-body" id="overlay-body">
+    <!-- FULLSCREEN ANIMATIONS OVERLAY -->
+    <div class="fullscreen-anim-overlay" id="fullscreen-anim-container">
+        <div class="anim-ring" id="anim-ring"></div>
+        <div class="anim-banner" id="anim-banner">
+            <span class="anim-text" id="anim-text">SIX!</span>
+            <span class="anim-sub" id="anim-sub">MONSTROUS HIT!</span>
+        </div>
+    </div>
+
+    <!-- MAIN LOWER THIRD CONTAINER -->
+    <div class="stream-overlay-container" id="stream-overlay">
+
+        <!-- Middle Deck: Dark Blue Branding -->
+        <div class="overlay-mid-deck">
+            <!-- Score Curved Container -->
+            <div class="score-badge">
+                <span id="overlay-batting-team">TEJANI TIGERS</span>
+                <span class="score-val" id="overlay-score">0/0</span>
+            </div>
+
+            <!-- Overs -->
+            <div class="overs-badge" id="overlay-overs">0.0 Ov</div>
+
+            <!-- Player whiteboard projecting downwards -->
+            <div class="player-white-box">
+                <div class="player-col">
+                    <span class="player-lbl" id="overlay-b1-name">DHAVAL TEJANI</span>
+                    <span class="player-val" id="overlay-b1-val">0(0)*</span>
+                </div>
+                <div class="player-col">
+                    <span class="player-lbl" id="overlay-b2-name">RAVI TEJANI</span>
+                    <span class="player-val" id="overlay-b2-val">0(0)</span>
+                </div>
+                <div class="player-col">
+                    <span class="player-lbl" id="overlay-bowl-name">DEEP LUKHI</span>
+                    <span class="player-val" id="overlay-bowl-val">0-0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Deck: White details banner -->
+        <div class="overlay-bottom-deck">
+            <!-- 6 Over timeline dots -->
+            <div class="bottom-timeline" id="overlay-bottom-timeline">
+                <span class="bottom-dot"></span>
+                <span class="bottom-dot"></span>
+                <span class="bottom-dot"></span>
+                <span class="bottom-dot"></span>
+                <span class="bottom-dot"></span>
+                <span class="bottom-dot"></span>
+            </div>
+
+            <!-- CRR & Target Details (Rotating Info Banner) -->
+            <div class="bottom-crr-box" style="margin-left: 2rem; position: relative; height: 30px; overflow: hidden; flex-grow: 1;">
+                <div class="info-slide active" id="slide-crr">
+                    CURRENT RUN RATE: <span id="overlay-crr" style="color:black; font-weight:800;">0.00</span>
+                    <span id="overlay-target-info" style="margin-left: 2rem; display: none; color: #0E2F7F;">
+                        TARGET: <span id="overlay-target-runs" style="font-weight:800;">0</span> | REQ. RUN RATE: <span id="overlay-rrr" style="font-weight:800;">0.00</span>
+                    </span>
+                </div>
+                <div class="info-slide" id="slide-extras">
+                    EXTRAS: <span id="overlay-extras-total" style="color:black; font-weight:800;">0</span>
+                    <span style="color:#64748b; font-size:0.95rem; margin-left: 10px;">
+                        (WD: <span id="overlay-wd">0</span>, NB: <span id="overlay-nb">0</span>, B: <span id="overlay-b">0</span>, LB: <span id="overlay-lb">0</span>)
+                    </span>
+                </div>
+                <div class="info-slide" id="slide-partnership">
+                    CURRENT PARTNERSHIP: <span id="overlay-pship-runs" style="color:black; font-weight:800;">0</span> RUNS (<span id="overlay-pship-balls" style="font-weight:800;">0</span> BALLS)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State receiver for Overlay
+        let overlayState = null;
+        let previousState = null;
+
+        function setChroma(mode) {
+            const body = document.getElementById('overlay-body');
+            body.className = 'obs-body chroma-trans';
+            
+            if (overlayState) {
+                overlayState.isChromaMode = 'trans';
+                localStorage.setItem('crickmitra_match_state', JSON.stringify(overlayState));
+            }
+        }
+
+        // Fullscreen Overlay Event Animation Trigger
+        function triggerFullscreenAnimation(type) {
+            const container = document.getElementById('fullscreen-anim-container');
+            const banner = document.getElementById('anim-banner');
+            const text = document.getElementById('anim-text');
+            const sub = document.getElementById('anim-sub');
+            const ring = document.getElementById('anim-ring');
+
+            if (!container || !banner || !text || !sub || !ring) return;
+
+            // Reset classes
+            banner.className = 'anim-banner';
+            text.className = 'anim-text';
+            sub.className = 'anim-sub';
+            ring.className = 'anim-ring';
+
+            // Configure text/colors based on type
+            if (type === 'FOUR') {
+                text.textContent = 'FOUR!';
+                text.className += ' four-glow';
+                sub.textContent = 'CRACKING BOUNDARY!';
+                ring.style.borderColor = '#FFB800';
+            } else if (type === 'SIX') {
+                text.textContent = 'SIX!';
+                text.className += ' six-glow';
+                sub.textContent = 'MONSTROUS HIT!';
+                ring.style.borderColor = '#FFB800';
+            } else if (type === 'WICKET') {
+                text.textContent = 'OUT!';
+                text.className += ' wicket-glow';
+                sub.textContent = 'WICKET FALLS!';
+                ring.style.borderColor = '#ef4444';
+            }
+
+            // Show container
+            container.style.display = 'flex';
+
+            // Trigger animations
+            setTimeout(() => {
+                banner.classList.add('active');
+                text.classList.add('active');
+                sub.classList.add('active');
+                ring.classList.add('active');
+            }, 50);
+
+            // Hide container after 3 seconds
+            setTimeout(() => {
+                banner.classList.remove('active');
+                text.classList.remove('active');
+                sub.classList.remove('active');
+                ring.classList.remove('active');
+                setTimeout(() => {
+                    container.style.display = 'none';
+                }, 500); // Wait for transition out
+            }, 3000);
+        }
+
+        // Format Overs
+        function formatOvers(balls) {
+            const overs = Math.floor(balls / 6);
+            const remainingBalls = balls % 6;
+            return `${overs}.${remainingBalls}`;
+        }
+
+        // Helper to get initials
+        function getInitials(name) {
+            if (!name) return 'CM';
+            const words = name.trim().split(' ').filter(Boolean);
+            if (words.length >= 2) {
+                return (words[0][0] + words[1][0]).toUpperCase();
+            }
+            return name.slice(0, 2).toUpperCase();
+        }
+
+        // Global function called directly by index.html when opened as a popup
+        window.updateFromParent = function(parentState) {
+            overlayState = parentState;
+            renderOverlay();
+        };
+
+        // Redraw overlay UI from overlayState
+        function renderOverlay() {
+            if (!overlayState || !overlayState.setupComplete) {
+                // Show default placeholder
+                document.getElementById('overlay-batting-team').textContent = 'TEJANI TIGERS';
+                document.getElementById('overlay-score').textContent = '0/0';
+                document.getElementById('overlay-overs').textContent = '0.0 Ov';
+
+                document.getElementById('overlay-b1-name').textContent = 'DHAVAL TEJANI';
+                document.getElementById('overlay-b1-val').textContent = '0(0)*';
+                
+                document.getElementById('overlay-b2-name').textContent = 'RAVI TEJANI';
+                document.getElementById('overlay-b2-val').textContent = '0(0)';
+                
+                document.getElementById('overlay-bowl-name').textContent = 'DEEP LUKHI';
+                document.getElementById('overlay-bowl-val').textContent = '0-0';
+
+                // Default empty timeline dots
+                const timeline = document.getElementById('overlay-bottom-timeline');
+                timeline.innerHTML = '';
+                for (let i = 0; i < 6; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'bottom-dot';
+                    timeline.appendChild(dot);
+                }
+
+                document.getElementById('overlay-crr').textContent = '0.00';
+                document.getElementById('overlay-target-info').style.display = 'none';
+                return;
+            }
+
+            const setup = overlayState.matchSetup;
+            const inn = overlayState.innings === 1 ? overlayState.inn1 : overlayState.inn2;
+
+            // Check for 4, 6, or Wicket event compared to previousState
+            if (previousState && previousState.setupComplete) {
+                const prevInn = previousState.innings === 1 ? previousState.inn1 : previousState.inn2;
+                if (overlayState.innings === previousState.innings) {
+                    const currentBalls = inn.thisOverBalls || [];
+                    const prevBalls = prevInn.thisOverBalls || [];
+                    
+                    if (currentBalls.length > prevBalls.length) {
+                        const lastBall = currentBalls[currentBalls.length - 1];
+                        if (lastBall.type === 'wicket') {
+                            triggerFullscreenAnimation('WICKET');
+                        } else if (lastBall.type === 'run' && lastBall.val === 4) {
+                            triggerFullscreenAnimation('FOUR');
+                        } else if (lastBall.type === 'run' && lastBall.val === 6) {
+                            triggerFullscreenAnimation('SIX');
+                        }
+                    } else if (inn.ballsBowled > prevInn.ballsBowled && currentBalls.length === 0 && prevBalls.length > 0) {
+                        const lastBall = prevBalls[prevBalls.length - 1];
+                        if (lastBall.type === 'wicket') {
+                            triggerFullscreenAnimation('WICKET');
+                        } else if (lastBall.type === 'run' && lastBall.val === 4) {
+                            triggerFullscreenAnimation('FOUR');
+                        } else if (lastBall.type === 'run' && lastBall.val === 6) {
+                            triggerFullscreenAnimation('SIX');
+                        }
+                    }
+                }
+            }
+            previousState = JSON.parse(JSON.stringify(overlayState));
+
+
+            // 2. Score Badge details
+            document.getElementById('overlay-batting-team').textContent = overlayState.currentBattingTeam;
+            document.getElementById('overlay-score').textContent = `${inn.totalRuns}/${inn.wickets}`;
+            document.getElementById('overlay-overs').textContent = `${formatOvers(inn.ballsBowled)} Ov`;
+
+            // 3. Batters Card columns
+            const battingCard = inn.battingCard || [];
+            const striker = battingCard[overlayState.strikerIndex];
+            const nonStriker = battingCard[overlayState.nonStrikerIndex];
+
+            const b1NameEl = document.getElementById('overlay-b1-name');
+            const b2NameEl = document.getElementById('overlay-b2-name');
+            
+            b1NameEl.classList.remove('striker-active');
+            b2NameEl.classList.remove('striker-active');
+
+            if (striker) {
+                b1NameEl.textContent = striker.name;
+                document.getElementById('overlay-b1-val').textContent = `${striker.runs}(${striker.balls})`;
+                if (overlayState.strikerIndex === 0) {
+                    b1NameEl.classList.add('striker-active');
+                }
+            } else {
+                b1NameEl.textContent = 'Batter 1';
+                document.getElementById('overlay-b1-val').textContent = '0(0)';
+            }
+
+            if (nonStriker) {
+                b2NameEl.textContent = nonStriker.name;
+                document.getElementById('overlay-b2-val').textContent = `${nonStriker.runs}(${nonStriker.balls})`;
+                if (overlayState.strikerIndex === 1) {
+                    b2NameEl.classList.add('striker-active');
+                }
+            } else {
+                b2NameEl.textContent = 'Batter 2';
+                document.getElementById('overlay-b2-val').textContent = '0(0)';
+            }
+
+            // 4. Bowler Card column
+            const bowlingCard = inn.bowlingCard || [];
+            const bowler = bowlingCard[overlayState.currentBowlerIndex];
+            if (bowler) {
+                document.getElementById('overlay-bowl-name').textContent = bowler.name;
+                document.getElementById('overlay-bowl-val').textContent = `${bowler.wickets}-${bowler.runs}`;
+            } else {
+                document.getElementById('overlay-bowl-name').textContent = 'Bowler';
+                document.getElementById('overlay-bowl-val').textContent = '0-0';
+            }
+
+            // 5. Bottom Timeline (6 dots)
+            const timeline = document.getElementById('overlay-bottom-timeline');
+            timeline.innerHTML = '';
+
+            if (inn.thisOverBalls.length === 0) {
+                // Render 6 empty grey dots by default
+                for (let i = 0; i < 6; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'bottom-dot';
+                    timeline.appendChild(dot);
+                }
+            } else {
+                inn.thisOverBalls.forEach(ball => {
+                    const dot = document.createElement('span');
+                    dot.className = 'bottom-dot';
+                    dot.textContent = ball.val;
+
+                    if (ball.type === 'wicket') {
+                        dot.className += ' wicket-ball';
+                    } else if (ball.type === 'wide' || ball.type === 'noball') {
+                        dot.className += ' extra-ball';
+                    } else {
+                        if (ball.val === 4) dot.className += ' runs-4';
+                        else if (ball.val === 6) dot.className += ' runs-6';
+                        else if (ball.val > 0) {
+                            dot.style.backgroundColor = '#0E2F7F';
+                        }
+                    }
+                    timeline.appendChild(dot);
+                });
+            }
+
+            // 6. Run Rates & Target (and slides details)
+            const crr = inn.ballsBowled > 0 ? ((inn.totalRuns / inn.ballsBowled) * 6).toFixed(2) : '0.00';
+            document.getElementById('overlay-crr').textContent = crr;
+
+            const targetInfo = document.getElementById('overlay-target-info');
+            if (overlayState.innings === 2 && overlayState.target) {
+                targetInfo.style.display = 'inline';
+                document.getElementById('overlay-target-runs').textContent = overlayState.target;
+                
+                const runsNeeded = overlayState.target - inn.totalRuns;
+                const ballsRemaining = (setup.maxOvers * 6) - inn.ballsBowled;
+                const rrr = ballsRemaining > 0 ? ((runsNeeded / ballsRemaining) * 6).toFixed(2) : '0.00';
+                document.getElementById('overlay-rrr').textContent = rrr;
+            } else {
+                targetInfo.style.display = 'none';
+            }
+
+            // Populate Extras Slide
+            const ext = inn.extras || { wide: 0, noball: 0, bye: 0, legbye: 0 };
+            const extTotal = ext.wide + ext.noball + ext.bye + ext.legbye;
+            document.getElementById('overlay-extras-total').textContent = extTotal;
+            document.getElementById('overlay-wd').textContent = ext.wide;
+            document.getElementById('overlay-nb').textContent = ext.noball;
+            document.getElementById('overlay-b').textContent = ext.bye;
+            document.getElementById('overlay-lb').textContent = ext.legbye;
+
+            // Populate Partnership Slide
+            const pship = inn.partnership || { runs: 0, balls: 0 };
+            document.getElementById('overlay-pship-runs').textContent = pship.runs;
+            document.getElementById('overlay-pship-balls').textContent = pship.balls;
+        }
+
+        // Initialize and listen to updates
+        window.addEventListener('DOMContentLoaded', () => {
+            // Try window.opener first
+            if (window.opener && window.opener.state) {
+                overlayState = window.opener.state;
+                if (overlayState.isChromaMode) {
+                    setChroma(overlayState.isChromaMode);
+                } else {
+                    setChroma('trans');
+                }
+                renderOverlay();
+            } else {
+                const saved = localStorage.getItem('crickmitra_match_state');
+                if (saved) {
+                    try {
+                        overlayState = JSON.parse(saved);
+                        if (overlayState.isChromaMode) {
+                            setChroma(overlayState.isChromaMode);
+                        } else {
+                            setChroma('trans');
+                        }
+                    } catch(e) {
+                        console.error(e);
+                    }
+                } else {
+                    setChroma('trans'); // Default transparent mode
+                }
+                renderOverlay(); // Render placeholder or loaded state
+            }
+        });
+
+        // Broadcast listener for instant overlays update
+        const overlayChannel = new BroadcastChannel('crickmitra_match');
+        overlayChannel.onmessage = (event) => {
+            if (event.data && event.data.type === 'STATE_UPDATE') {
+                overlayState = event.data.state;
+                renderOverlay();
+            }
+        };
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'crickmitra_match_state' && event.newValue) {
+                overlayState = JSON.parse(event.newValue);
+                renderOverlay();
+            }
+        });
+
+        // Poll the local API server every 300ms (for OBS Studio CEF cross-process sync)
+        // Only run polling if this page is not opened as a direct popup (to avoid parent-child race conditions)
+        if (!window.opener) {
+            setInterval(() => {
+                fetch('http://127.0.0.1:8000/api/state')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.setupComplete) {
+                            const dataStr = JSON.stringify(data);
+                            const currentStr = JSON.stringify(overlayState);
+                            if (dataStr !== currentStr) {
+                                overlayState = data;
+                                renderOverlay();
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        // Fail silently when server is not running
+                    });
+            }, 300);
+        }
+
+        // Rotate bottom banner slides every 8 seconds
+        let currentSlide = 0;
+        setInterval(() => {
+            const slides = document.querySelectorAll('.info-slide');
+            if (slides.length <= 1) return;
+            
+            const active = document.querySelector('.info-slide.active');
+            if (active) {
+                active.classList.remove('active');
+                active.classList.add('exit');
+                setTimeout(() => {
+                    active.classList.remove('exit');
+                }, 600);
+            }
+            
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 8000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrickMitra - Stadium LED Scoreboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-stadium: #020617;
+            --card-stadium: #0f172a;
+            --accent-gold: #FFB800;
+            --accent-green: #10B981;
+            --text-white: #ffffff;
+            --text-muted: #64748b;
+            --font-main: 'Outfit', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-stadium);
+            color: var(--text-white);
+            font-family: var(--font-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 3vh;
+            user-select: none;
+        }
+
+        /* MAIN SCORE AREA (All Centered) */
+        .stadium-score-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .team-title {
+            font-size: 6vh;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            margin-bottom: 1.5vh;
+            text-shadow: 0 4px 15px rgba(255, 184, 0, 0.15);
+        }
+
+        .target-box {
+            font-size: 3.5vh;
+            font-weight: 800;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.5vh 2vw;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            text-transform: uppercase;
+            margin-bottom: 2vh;
+            animation: pulse-border-red 2s infinite alternate;
+        }
+
+        @keyframes pulse-border-red {
+            0% { border-color: rgba(239, 68, 68, 0.2); }
+            100% { border-color: rgba(239, 68, 68, 0.6); }
+        }
+
+        .main-score {
+            font-size: 21vw;
+            font-weight: 900;
+            line-height: 0.85;
+            color: var(--text-white);
+            letter-spacing: -3px;
+        }
+
+        .main-score span {
+            color: var(--accent-gold);
+        }
+
+        .main-overs {
+            font-size: 7vw;
+            font-weight: 800;
+            color: var(--text-white);
+            margin-top: 1.5vh;
+            letter-spacing: 1px;
+        }
+
+        /* BALL TIMELINE */
+        .stadium-timeline-container {
+            height: 18vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-top: 2px solid #1e293b;
+            padding-top: 2vh;
+            margin-bottom: 2vh;
+        }
+
+        .timeline-label {
+            font-size: 3vh;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5vh;
+        }
+
+        .timeline-dots {
+            display: flex;
+            gap: 1.5vw;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stadium-dot {
+            width: 10vh;
+            height: 10vh;
+            border-radius: 50%;
+            background-color: #1e293b;
+            color: var(--text-white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4.5vh;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2px solid transparent;
+        }
+
+        .stadium-dot.runs-4 {
+            background-color: #0E2F7F;
+            color: var(--accent-gold);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(255, 184, 0, 0.4);
+        }
+
+        .stadium-dot.runs-6 {
+            background: linear-gradient(135deg, #071D52 0%, #0E2F7F 100%);
+            color: var(--accent-gold);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(255, 184, 0, 0.5);
+            animation: pulse-gold 1.5s infinite alternate;
+        }
+
+        .stadium-dot.wicket-ball {
+            background-color: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .stadium-dot.extra-ball {
+            background-color: var(--accent-gold);
+            color: #020617;
+        }
+
+        .stadium-dot.runs-any {
+            background-color: #0e2f7f;
+            color: #ffffff;
+        }
+
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 10px rgba(255, 184, 0, 0.3); }
+            100% { box-shadow: 0 0 25px rgba(255, 184, 0, 0.6); }
+        }
+
+        /* RUN RATES FOOTER BAR */
+        .stadium-rr-bar {
+            height: 8vh;
+            background: var(--card-stadium);
+            border: 2px solid #1e293b;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5vw;
+            font-size: 3.5vh;
+            font-weight: 800;
+            color: var(--text-muted);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .stadium-rr-bar span {
+            color: var(--text-white);
+        }
+
+        /* GIANT OVERLAY ANIMATION */
+        .event-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            animation: fadeInOverlay 0.3s forwards;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .event-overlay.four-overlay {
+            background-color: #0E2F7F;
+            border: 30px solid var(--accent-gold);
+        }
+
+        .event-overlay.six-overlay {
+            background-color: #1e1b4b;
+            border: 30px solid var(--accent-gold);
+        }
+
+        .event-overlay.wicket-overlay {
+            background-color: #7f1d1d;
+            border: 30px solid #ef4444;
+        }
+
+        .event-title {
+            font-size: 18vw;
+            letter-spacing: -3px;
+            color: var(--accent-gold);
+            text-shadow: 0 0 60px rgba(255, 184, 0, 0.7);
+            animation: zoomPulse 0.5s ease-out forwards;
+        }
+
+        .event-overlay.wicket-overlay .event-title {
+            color: #ffffff;
+            text-shadow: 0 0 60px rgba(239, 68, 68, 0.9);
+            animation: zoomPulseWicket 0.5s ease-out forwards;
+        }
+
+        .event-subtitle {
+            font-size: 5vw;
+            color: #ffffff;
+            letter-spacing: 8px;
+            margin-top: 3vh;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUpSub 0.4s ease-out 0.3s forwards;
+        }
+
+        @keyframes zoomPulse {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes zoomPulseWicket {
+            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            70% { transform: scale(1.1) rotate(5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes slideUpSub {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MAIN LIVE SCORE, TEAM & OVERS (All Centered) -->
+    <div class="stadium-score-section">
+        <div class="team-title" id="led-batting-team">TEJANI TIGERS</div>
+        <div class="target-box" id="led-target-box" style="display: none;">TARGET: <span id="led-target-runs">0</span></div>
+        <div class="main-score" id="led-score">0<span>/</span>0</div>
+        <div class="main-overs" id="led-overs">0.0 Overs</div>
+    </div>
+
+    <!-- BALL-BY-BALL TIMELINE -->
+    <div class="stadium-timeline-container">
+        <div class="timeline-label">This Over</div>
+        <div class="timeline-dots" id="led-timeline-dots">
+            <span class="stadium-dot"></span>
+            <span class="stadium-dot"></span>
+            <span class="stadium-dot"></span>
+            <span class="stadium-dot"></span>
+            <span class="stadium-dot"></span>
+            <span class="stadium-dot"></span>
+        </div>
+    </div>
+
+    <!-- RUN RATES BAR -->
+    <div class="stadium-rr-bar">
+        <div>CRR: <span id="led-crr">0.00</span></div>
+        <div id="led-rrr-info" style="display: none;">RRR: <span id="led-rrr">0.00</span></div>
+    </div>
+
+    <!-- BIG EVENT OVERLAY SCREEN -->
+    <div class="event-overlay" id="led-event-overlay">
+        <div class="event-title" id="led-event-title">FOUR!</div>
+        <div class="event-subtitle" id="led-event-sub">CRACKING SHOT!</div>
+    </div>
+
+    <script>
+        let stadiumState = null;
+        let previousState = null;
+
+        // Global update function for popup window channel
+        window.updateFromParent = function(parentState) {
+            stadiumState = parentState;
+            renderStadium();
+        };
+
+        // Redraw stadium dashboard
+        function renderStadium() {
+            if (!stadiumState || !stadiumState.setupComplete) {
+                // Return to defaults
+                document.getElementById('led-batting-team').textContent = 'TEJANI TIGERS';
+                document.getElementById('led-score').innerHTML = '0<span>/</span>0';
+                document.getElementById('led-overs').textContent = '0.0 Overs';
+                document.getElementById('led-target-box').style.display = 'none';
+                document.getElementById('led-crr').textContent = '0.00';
+                document.getElementById('led-rrr-info').style.display = 'none';
+
+                // Empty timeline dots
+                const timeline = document.getElementById('led-timeline-dots');
+                timeline.innerHTML = '';
+                for (let i = 0; i < 6; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'stadium-dot';
+                    timeline.appendChild(dot);
+                }
+                return;
+            }
+
+            const setup = stadiumState.matchSetup;
+            const inn = stadiumState.innings === 1 ? stadiumState.inn1 : stadiumState.inn2;
+
+            // 1. Check for 4, 6, Wicket to trigger Giant Stadium Animations
+            if (previousState && previousState.setupComplete) {
+                const prevInn = previousState.innings === 1 ? previousState.inn1 : previousState.inn2;
+                if (stadiumState.innings === previousState.innings) {
+                    const currentBalls = inn.thisOverBalls || [];
+                    const prevBalls = prevInn.thisOverBalls || [];
+
+                    if (currentBalls.length > prevBalls.length) {
+                        const lastBall = currentBalls[currentBalls.length - 1];
+                        if (lastBall.type === 'wicket') triggerStadiumEvent('WICKET');
+                        else if (lastBall.type === 'run' && lastBall.val === 4) triggerStadiumEvent('FOUR');
+                        else if (lastBall.type === 'run' && lastBall.val === 6) triggerStadiumEvent('SIX');
+                    } else if (inn.ballsBowled > prevInn.ballsBowled && currentBalls.length === 0 && prevBalls.length > 0) {
+                        const lastBall = prevBalls[prevBalls.length - 1];
+                        if (lastBall.type === 'wicket') triggerStadiumEvent('WICKET');
+                        else if (lastBall.type === 'run' && lastBall.val === 4) triggerStadiumEvent('FOUR');
+                        else if (lastBall.type === 'run' && lastBall.val === 6) triggerStadiumEvent('SIX');
+                    }
+                }
+            }
+            previousState = JSON.parse(JSON.stringify(stadiumState));
+
+            // 2. Score, Wickets and Overs
+            document.getElementById('led-batting-team').textContent = stadiumState.currentBattingTeam;
+            document.getElementById('led-score').innerHTML = `${inn.totalRuns}<span>/</span>${inn.wickets}`;
+            
+            // Format Overs
+            const overs = Math.floor(inn.ballsBowled / 6);
+            const remainingBalls = inn.ballsBowled % 6;
+            document.getElementById('led-overs').textContent = `${overs}.${remainingBalls} Overs`;
+
+            // 3. Render 6 Overs timeline dots
+            const timeline = document.getElementById('led-timeline-dots');
+            timeline.innerHTML = '';
+
+            const thisOverBalls = inn.thisOverBalls || [];
+            if (thisOverBalls.length === 0) {
+                // Render 6 empty grey dots by default
+                for (let i = 0; i < 6; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'stadium-dot';
+                    timeline.appendChild(dot);
+                }
+            } else {
+                thisOverBalls.forEach(ball => {
+                    const dot = document.createElement('span');
+                    dot.className = 'stadium-dot';
+                    dot.textContent = ball.val;
+
+                    if (ball.type === 'wicket') {
+                        dot.className += ' wicket-ball';
+                        dot.textContent = 'W';
+                    } else if (ball.type === 'wide') {
+                        dot.className += ' extra-ball';
+                        dot.textContent = 'Wd';
+                    } else if (ball.type === 'noball') {
+                        dot.className += ' extra-ball';
+                        dot.textContent = 'Nb';
+                    } else {
+                        if (ball.val === 4) dot.className += ' runs-4';
+                        else if (ball.val === 6) dot.className += ' runs-6';
+                        else if (ball.val > 0) {
+                            dot.className += ' runs-any';
+                        }
+                    }
+                    timeline.appendChild(dot);
+                });
+            }
+
+            // 4. Run Rates & Target
+            const crr = inn.ballsBowled > 0 ? ((inn.totalRuns / inn.ballsBowled) * 6).toFixed(2) : '0.00';
+            document.getElementById('led-crr').textContent = crr;
+
+            const targetBox = document.getElementById('led-target-box');
+            const rrrInfo = document.getElementById('led-rrr-info');
+            
+            if (stadiumState.innings === 2 && stadiumState.target) {
+                targetBox.style.display = 'block';
+                document.getElementById('led-target-runs').textContent = stadiumState.target;
+                
+                rrrInfo.style.display = 'block';
+                const runsNeeded = stadiumState.target - inn.totalRuns;
+                const ballsRemaining = (setup.maxOvers * 6) - inn.ballsBowled;
+                const rrr = ballsRemaining > 0 ? ((runsNeeded / ballsRemaining) * 6).toFixed(2) : '0.00';
+                document.getElementById('led-rrr').textContent = rrr;
+            } else {
+                targetBox.style.display = 'none';
+                rrrInfo.style.display = 'none';
+            }
+        }
+
+        // Trigger Giant Stadium overlay screen
+        function triggerStadiumEvent(type) {
+            const overlay = document.getElementById('led-event-overlay');
+            const title = document.getElementById('led-event-title');
+            const sub = document.getElementById('led-event-sub');
+
+            // Reset classes
+            overlay.className = 'event-overlay';
+
+            if (type === 'FOUR') {
+                overlay.classList.add('four-overlay');
+                title.textContent = 'FOUR!';
+                sub.textContent = 'CRACKING BOUNDARY!';
+            } else if (type === 'SIX') {
+                overlay.classList.add('six-overlay');
+                title.textContent = 'SIX!';
+                sub.textContent = 'MONSTROUS BIG HIT!';
+            } else if (type === 'WICKET') {
+                overlay.classList.add('wicket-overlay');
+                title.textContent = 'OUT!';
+                sub.textContent = 'WICKET HAS FALLEN!';
+            }
+
+            overlay.style.display = 'flex';
+
+            // Hide after 3.5 seconds
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 3500);
+        }
+
+        // Initialize and listen to storage / broadcast update
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.opener && window.opener.state) {
+                stadiumState = window.opener.state;
+                renderStadium();
+            } else {
+                const saved = localStorage.getItem('crickmitra_match_state');
+                if (saved) {
+                    try {
+                        stadiumState = JSON.parse(saved);
+                        renderStadium();
+                    } catch(e) {
+                        console.error(e);
+                    }
+                }
+            }
+        });
+
+        // Broadcast Channel
+        const ledChannel = new BroadcastChannel('crickmitra_match');
+        ledChannel.onmessage = (event) => {
+            if (event.data && event.data.type === 'STATE_UPDATE') {
+                stadiumState = event.data.state;
+                renderStadium();
+            }
+        };
+
+        // Storage Listener
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'crickmitra_match_state' && event.newValue) {
+                stadiumState = JSON.parse(event.newValue);
+                renderStadium();
+            }
+        });
+
+        // Local Server Poll Timer (only if not opened as a direct popup, e.g. opened directly in stadium browser)
+        if (!window.opener) {
+            setInterval(() => {
+                fetch('http://127.0.0.1:8000/api/state')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.setupComplete) {
+                            const dataStr = JSON.stringify(data);
+                            const currentStr = JSON.stringify(stadiumState);
+                            if (dataStr !== currentStr) {
+                                stadiumState = data;
+                                renderStadium();
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        // Fail silently when server is not running
+                    });
+            }, 300);
+        }
+    </script>
+</body>
+</html>

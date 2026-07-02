@@ -1,0 +1,12 @@
+{
+  "name": "crickmitra-scoring",
+  "version": "1.0.0",
+  "description": "CrickMitra Scoring App for Cloud Hosting",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
