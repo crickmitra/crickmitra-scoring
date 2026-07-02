@@ -19,6 +19,7 @@ app.use((req, res, next) => {
 
 // Scoring State In-Memory Database
 let globalState = {};
+let registeredUsers = [];
 
 // API State endpoints
 app.post('/api/state', (req, res) => {
@@ -28,6 +29,26 @@ app.post('/api/state', (req, res) => {
 
 app.get('/api/state', (req, res) => {
     res.status(200).json(globalState);
+});
+
+// API Registration endpoints
+app.post('/api/register', (req, res) => {
+    const user = req.body;
+    // Prevent duplicate numbers in-memory
+    registeredUsers = registeredUsers.filter(u => u.mobile !== user.mobile);
+    registeredUsers.push(user);
+    console.log(`Registered user: ${user.name} (${user.role})`);
+    res.status(200).json({ status: 'ok', count: registeredUsers.length });
+});
+
+app.get('/api/registered-users', (req, res) => {
+    // Return registered users without photo base64 strings to save bandwidth
+    const usersSummary = registeredUsers.map(u => ({
+        name: u.name,
+        mobile: u.mobile,
+        role: u.role
+    }));
+    res.status(200).json(usersSummary);
 });
 
 // Serve static HTML/JS/CSS assets from root folder
