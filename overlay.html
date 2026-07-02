@@ -34,6 +34,110 @@
             background-color: transparent !important;
         }
 
+        /* THEME VARIABLES & OVERLAY ROOT STYLE */
+        :root {
+            --mid-bg: linear-gradient(90deg, #0B0F19 0%, #071D52 100%);
+            --bottom-bg: #ffffff;
+            --score-bg: #0E2F7F;
+            --score-border: #FFB800;
+            --score-text: #FFB800;
+            --overs-color: #cbd5e1;
+            --whiteboard-bg: #ffffff;
+            --whiteboard-border: #e2e8f0;
+            --player-lbl-color: #64748b;
+            --player-val-color: #0f172a;
+            --bottom-text-color: #1e293b;
+            --bottom-highlight: #0e2f7f;
+            --dot-bg: #cbd5e1;
+            --dot-border: transparent;
+            --dot-text: #ffffff;
+            --backdrop-blur: none;
+            --overlay-shadow: 0 -5px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Theme 2: Dark Carbon */
+        .theme-carbon {
+            --mid-bg: linear-gradient(90deg, #18181b 0%, #09090b 100%);
+            --bottom-bg: #18181b;
+            --score-bg: #27272a;
+            --score-border: #FFB800;
+            --score-text: #FFB800;
+            --overs-color: #a1a1aa;
+            --whiteboard-bg: #27272a;
+            --whiteboard-border: rgba(255, 184, 0, 0.25);
+            --player-lbl-color: #a1a1aa;
+            --player-val-color: #ffffff;
+            --bottom-text-color: #f4f4f5;
+            --bottom-highlight: #FFB800;
+            --dot-bg: #27272a;
+            --dot-border: rgba(255, 184, 0, 0.15);
+            --dot-text: #f4f4f5;
+            --backdrop-blur: none;
+            --overlay-shadow: 0 -5px 25px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Theme 3: Classic Broadcast */
+        .theme-classic {
+            --mid-bg: linear-gradient(90deg, #0f172a 0%, #1e3a8a 100%);
+            --bottom-bg: #f8fafc;
+            --score-bg: #b91c1c; /* Star Sports red score badge */
+            --score-border: #facc15; /* Yellow border */
+            --score-text: #facc15;
+            --overs-color: #ffffff;
+            --whiteboard-bg: #1e293b;
+            --whiteboard-border: #facc15;
+            --player-lbl-color: #94a3b8;
+            --player-val-color: #facc15;
+            --bottom-text-color: #0f172a;
+            --bottom-highlight: #b91c1c;
+            --dot-bg: #e2e8f0;
+            --dot-border: #cbd5e1;
+            --dot-text: #0f172a;
+            --backdrop-blur: none;
+        }
+
+        /* Theme 4: Glassmorphism */
+        .theme-glass {
+            --mid-bg: rgba(15, 23, 42, 0.45);
+            --bottom-bg: rgba(15, 23, 42, 0.3);
+            --score-bg: rgba(255, 184, 0, 0.15);
+            --score-border: rgba(255, 184, 0, 0.5);
+            --score-text: #FFB800;
+            --overs-color: #f1f5f9;
+            --whiteboard-bg: rgba(255, 255, 255, 0.08);
+            --whiteboard-border: rgba(255, 255, 255, 0.15);
+            --player-lbl-color: #cbd5e1;
+            --player-val-color: #FFB800;
+            --bottom-text-color: #ffffff;
+            --bottom-highlight: #FFB800;
+            --dot-bg: rgba(255, 255, 255, 0.05);
+            --dot-border: rgba(255, 255, 255, 0.1);
+            --dot-text: #ffffff;
+            --backdrop-blur: blur(16px);
+            --overlay-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Theme 5: Cyber Neon */
+        .theme-neon {
+            --mid-bg: #09090b;
+            --bottom-bg: #09090b;
+            --score-bg: #18181b;
+            --score-border: #22c55e; /* Neon Green */
+            --score-text: #22c55e;
+            --overs-color: #22c55e;
+            --whiteboard-bg: #18181b;
+            --whiteboard-border: #22c55e;
+            --player-lbl-color: #a1a1aa;
+            --player-val-color: #22c55e;
+            --bottom-text-color: #22c55e;
+            --bottom-highlight: #ffffff;
+            --dot-bg: #18181b;
+            --dot-border: rgba(34, 197, 94, 0.4);
+            --dot-text: #ffffff;
+            --backdrop-blur: none;
+            --overlay-shadow: 0 -5px 25px rgba(34, 197, 94, 0.25);
+        }
+
         /* CrickMitra Sporty Theme - Full Width Broadcast Banner (1920px) */
         .stream-overlay-container {
             position: absolute;
@@ -42,26 +146,28 @@
             width: 100%; /* Spans full width (1920px in widescreen OBS / 1080px in vertical OBS) */
             display: flex;
             flex-direction: column;
-            font-family: 'Outfit', sans-serif;
-            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--overlay-shadow);
+            backdrop-filter: var(--backdrop-blur);
             overflow: visible; /* Lets the white cards overlap downwards */
+            transition: all 0.3s ease;
         }
 
         /* Middle Deck: CrickMitra Branding Gradient */
         .overlay-mid-deck {
             height: 100px; /* Height set to 100px */
-            background: linear-gradient(90deg, #0B0F19 0%, #071D52 100%);
+            background: var(--mid-bg);
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
+            transition: all 0.3s ease;
         }
 
         .score-badge {
             height: 100%;
-            background: #0E2F7F;
+            background: var(--score-bg);
             border-radius: 0 30px 30px 0; /* Curved right side */
-            border-right: 3px solid #FFB800; /* Gold vertical border */
+            border-right: 3px solid var(--score-border); /* Gold vertical border */
             padding: 0 3rem 0 3rem;
             display: flex;
             align-items: center;
@@ -70,21 +176,24 @@
             color: white;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: all 0.3s ease;
         }
 
         .score-badge span.score-val {
-            color: #FFB800; /* Gold Highlight Score */
+            color: var(--score-text); /* Gold Highlight Score */
             margin-left: 12px;
             font-size: 2.4rem;
             text-shadow: 0 0 10px rgba(255, 184, 0, 0.4);
+            transition: all 0.3s ease;
         }
 
         .overs-badge {
             font-size: 1.6rem;
             font-weight: 700;
-            color: #cbd5e1;
+            color: var(--overs-color);
             margin-left: 2rem;
             flex-grow: 1;
+            transition: all 0.3s ease;
         }
 
         /* Player whiteboard projecting downwards */
@@ -92,14 +201,14 @@
             position: absolute;
             top: 15px; /* Centered vertically inside 100px deck */
             right: 3rem;
-            background: white;
-            color: black;
+            background: var(--whiteboard-bg);
             border-radius: 8px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.35);
             display: flex;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--whiteboard-border);
             height: 110px; /* Taller box height */
             z-index: 100;
+            transition: all 0.3s ease;
         }
 
         .player-col {
@@ -109,8 +218,9 @@
             justify-content: center;
             align-items: center;
             min-width: 170px;
-            border-right: 1px solid #e2e8f0;
+            border-right: 1px solid var(--whiteboard-border);
             text-align: center;
+            transition: all 0.3s ease;
         }
 
         .player-col:last-child {
@@ -120,30 +230,33 @@
         .player-lbl {
             font-size: 0.8rem;
             font-weight: 700;
-            color: #64748b;
+            color: var(--player-lbl-color);
             text-transform: uppercase;
             white-space: nowrap;
             margin-bottom: 4px;
             letter-spacing: 0.5px;
+            transition: all 0.3s ease;
         }
 
         .player-val {
             font-size: 1.6rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--player-val-color);
+            transition: all 0.3s ease;
         }
 
         /* Bottom Deck: White details banner */
         .overlay-bottom-deck {
             height: 90px; /* Height set to 90px */
-            background: #ffffff;
+            background: var(--bottom-bg);
             display: flex;
             align-items: center;
             padding: 0 3rem;
-            color: #1e293b;
+            color: var(--bottom-text-color);
             font-size: 1.1rem;
             font-weight: 700;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid var(--whiteboard-border);
+            transition: all 0.3s ease;
         }
 
         .bottom-timeline {
@@ -157,13 +270,14 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background-color: #cbd5e1; /* grey default */
+            background-color: var(--dot-bg);
+            border: 1px solid var(--dot-border);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.95rem;
             font-weight: 900;
-            color: white;
+            color: var(--dot-text);
             transition: all 0.3s ease;
         }
 
@@ -398,6 +512,94 @@
             top: -100%;
             opacity: 0;
         }
+
+        /* EVENT POPUP CARD STYLING */
+        .event-popup-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 580px;
+            height: 90px;
+            margin-left: 3rem;
+            background: linear-gradient(135deg, var(--score-bg) 0%, #1e293b 100%);
+            border: 2px solid var(--score-border);
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: absolute;
+            bottom: 100%; /* Sits above the stream-overlay-container */
+            left: 0;
+            transform: translateY(40px) scale(0.9);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+
+        .event-popup-card.active {
+            transform: translateY(-15px) scale(1);
+            opacity: 1;
+        }
+
+        .popup-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-left: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .popup-flag {
+            font-size: 2.2rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+        }
+
+        .popup-name-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .popup-main-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .popup-sub-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--overs-color);
+            margin-top: 2px;
+        }
+
+        .popup-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-width: 110px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            border-left: 1px solid var(--whiteboard-border);
+        }
+
+        .popup-stat-runs {
+            font-size: 2.3rem;
+            font-weight: 900;
+            color: var(--score-text);
+            line-height: 1.1;
+        }
+
+        .popup-stat-balls {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body class="obs-body" id="overlay-body">
@@ -412,6 +614,20 @@
 
     <!-- MAIN LOWER THIRD CONTAINER -->
     <div class="stream-overlay-container" id="stream-overlay">
+        <!-- Event Popup Card (Sliding panel above lower-third) -->
+        <div id="event-popup-card" class="event-popup-card">
+            <div class="popup-left">
+                <span id="popup-flag" class="popup-flag">🏳️</span>
+                <div class="popup-name-box">
+                    <div id="popup-main-title" class="popup-main-title">MOHAMMAD HARIS</div>
+                    <div id="popup-sub-title" class="popup-sub-title">c Rinku b Axar</div>
+                </div>
+            </div>
+            <div class="popup-right" id="popup-right-container">
+                <div id="popup-stat-runs" class="popup-stat-runs">0</div>
+                <div id="popup-stat-balls" class="popup-stat-balls">2</div>
+            </div>
+        </div>
 
         <!-- Middle Deck: Dark Blue Branding -->
         <div class="overlay-mid-deck">
@@ -454,21 +670,21 @@
             </div>
 
             <!-- CRR & Target Details (Rotating Info Banner) -->
-            <div class="bottom-crr-box" style="margin-left: 2rem; position: relative; height: 30px; overflow: hidden; flex-grow: 1;">
+            <div class="bottom-crr-box" style="margin-left: 2rem; position: relative; height: 30px; overflow: hidden; flex-grow: 1; color: var(--bottom-text-color);">
                 <div class="info-slide active" id="slide-crr">
-                    CURRENT RUN RATE: <span id="overlay-crr" style="color:black; font-weight:800;">0.00</span>
-                    <span id="overlay-target-info" style="margin-left: 2rem; display: none; color: #0E2F7F;">
+                    CURRENT RUN RATE: <span id="overlay-crr" style="color: var(--bottom-highlight); font-weight:800;">0.00</span>
+                    <span id="overlay-target-info" style="margin-left: 2rem; display: none; color: var(--bottom-highlight);">
                         TARGET: <span id="overlay-target-runs" style="font-weight:800;">0</span> | REQ. RUN RATE: <span id="overlay-rrr" style="font-weight:800;">0.00</span>
                     </span>
                 </div>
                 <div class="info-slide" id="slide-extras">
-                    EXTRAS: <span id="overlay-extras-total" style="color:black; font-weight:800;">0</span>
-                    <span style="color:#64748b; font-size:0.95rem; margin-left: 10px;">
+                    EXTRAS: <span id="overlay-extras-total" style="color: var(--bottom-highlight); font-weight:800;">0</span>
+                    <span style="color: var(--player-lbl-color); font-size:0.95rem; margin-left: 10px;">
                         (WD: <span id="overlay-wd">0</span>, NB: <span id="overlay-nb">0</span>, B: <span id="overlay-b">0</span>, LB: <span id="overlay-lb">0</span>)
                     </span>
                 </div>
                 <div class="info-slide" id="slide-partnership">
-                    CURRENT PARTNERSHIP: <span id="overlay-pship-runs" style="color:black; font-weight:800;">0</span> RUNS (<span id="overlay-pship-balls" style="font-weight:800;">0</span> BALLS)
+                    CURRENT PARTNERSHIP: <span id="overlay-pship-runs" style="color: var(--bottom-highlight); font-weight:800;">0</span> RUNS (<span id="overlay-pship-balls" style="font-weight:800;">0</span> BALLS)
                 </div>
             </div>
         </div>
@@ -478,6 +694,67 @@
         // State receiver for Overlay
         let overlayState = null;
         let previousState = null;
+        let previousStateForPopup = null;
+        let popupTimeout = null;
+
+        // Show Event Popup Card (OUT / NEW BATSMAN / NEW BOWLER)
+        function showEventPopup(type, name, subtitle, statMain, statSub) {
+            const card = document.getElementById('event-popup-card');
+            const flag = document.getElementById('popup-flag');
+            const title = document.getElementById('popup-main-title');
+            const sub = document.getElementById('popup-sub-title');
+            const runs = document.getElementById('popup-stat-runs');
+            const balls = document.getElementById('popup-stat-balls');
+            const rightBox = document.getElementById('popup-right-container');
+
+            title.textContent = name;
+            sub.textContent = subtitle;
+            runs.textContent = statMain;
+            balls.textContent = statSub;
+
+            if (type === 'OUT') {
+                flag.textContent = '🔴';
+                rightBox.style.background = 'rgba(239, 68, 68, 0.3)';
+                card.style.borderColor = '#ef4444';
+            } else if (type === 'BATSMAN') {
+                flag.textContent = '🏏';
+                rightBox.style.background = 'rgba(34, 197, 94, 0.2)';
+                card.style.borderColor = '#22c55e';
+                runs.textContent = '0';
+                balls.textContent = '0';
+            } else if (type === 'BOWLER') {
+                flag.textContent = '🎳';
+                rightBox.style.background = 'rgba(59, 130, 246, 0.2)';
+                card.style.borderColor = '#3b82f6';
+                runs.textContent = statMain + 'W';
+                balls.textContent = statSub + ' Ov';
+            }
+
+            // Clear any existing timeout
+            if (popupTimeout) clearTimeout(popupTimeout);
+
+            // Show card
+            card.classList.add('active');
+
+            // Auto-hide after 3.5 seconds
+            popupTimeout = setTimeout(() => {
+                card.classList.remove('active');
+            }, 3500);
+        }
+
+        // Apply Overlay Theme
+        function applyOverlayTheme(themeName) {
+            const container = document.getElementById('stream-overlay');
+            // Remove all theme classes
+            container.classList.remove('theme-carbon', 'theme-classic', 'theme-glass', 'theme-neon');
+            
+            if (themeName === 'carbon') container.classList.add('theme-carbon');
+            else if (themeName === 'classic') container.classList.add('theme-classic');
+            else if (themeName === 'glass') container.classList.add('theme-glass');
+            else if (themeName === 'neon') container.classList.add('theme-neon');
+            // 'default' = no class = Sporty Purple (root variables)
+        }
+
 
         function setChroma(mode) {
             const body = document.getElementById('overlay-body');
@@ -633,6 +910,56 @@
             }
             previousState = JSON.parse(JSON.stringify(overlayState));
 
+            // -- APPLY OVERLAY THEME --
+            applyOverlayTheme(overlayState.overlayTheme || 'default');
+
+            // -- EVENT POPUP TRIGGER ENGINE --
+            if (previousStateForPopup && previousStateForPopup.setupComplete) {
+                const prevInn2 = previousStateForPopup.innings === 1 ? previousStateForPopup.inn1 : previousStateForPopup.inn2;
+
+                // DETECT WICKET (wickets count increased)
+                if (overlayState.innings === previousStateForPopup.innings && inn.wickets > prevInn2.wickets) {
+                    // Find the last fall of wicket entry
+                    const fow = inn.fallOfWickets || [];
+                    const lastFow = fow.length > 0 ? fow[fow.length - 1] : null;
+                    const outBatsman = lastFow ? lastFow.batsman : 'BATSMAN';
+                    const outScore = lastFow ? `${lastFow.score}/${lastFow.wickets}` : '';
+
+                    // Find the out batsman's batting card entry for runs/balls
+                    const battingCard2 = inn.battingCard || [];
+                    const outEntry = battingCard2.find(b => b.name === outBatsman && b.status !== 'DNB');
+                    const outRuns = outEntry ? outEntry.runs : 0;
+                    const outBalls = outEntry ? outEntry.balls : 0;
+
+                    showEventPopup('OUT', outBatsman, outScore, outRuns, outBalls);
+                }
+
+                // DETECT NEW BOWLER (bowler index changed or over boundary)
+                if (overlayState.currentBowlerIndex !== previousStateForPopup.currentBowlerIndex && overlayState.currentBowlerIndex !== undefined) {
+                    const bowlers = inn.bowlingCard || [];
+                    const newBowler = bowlers[overlayState.currentBowlerIndex];
+                    if (newBowler) {
+                        const bOvers = Math.floor(newBowler.balls / 6);
+                        const bBalls = newBowler.balls % 6;
+                        showEventPopup('BOWLER', newBowler.name, 'NEW BOWLER', newBowler.wickets, `${bOvers}.${bBalls}`);
+                    }
+                }
+
+                // DETECT NEW BATSMAN (striker or non-striker index changed to a new player)
+                if (overlayState.innings === previousStateForPopup.innings) {
+                    const prevBattingCard = prevInn2.battingCard || [];
+                    const curBattingCard = inn.battingCard || [];
+
+                    // Check if strikerIndex points to a different player than before
+                    if (overlayState.strikerIndex !== previousStateForPopup.strikerIndex) {
+                        const newBatsman = curBattingCard[overlayState.strikerIndex];
+                        if (newBatsman && newBatsman.balls === 0 && newBatsman.runs === 0) {
+                            showEventPopup('BATSMAN', newBatsman.name, 'NEW BATSMAN', 0, 0);
+                        }
+                    }
+                }
+            }
+            previousStateForPopup = JSON.parse(JSON.stringify(overlayState));
 
             // 2. Score Badge details
             document.getElementById('overlay-batting-team').textContent = overlayState.currentBattingTeam;

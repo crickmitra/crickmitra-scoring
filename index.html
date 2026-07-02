@@ -29,6 +29,13 @@
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                 Mobile Live Scorecard
             </button>
+            <select id="overlay-theme-select" onchange="changeOverlayTheme(this.value)" style="background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); padding: 0.45rem 0.75rem; border-radius: 8px; font-family: var(--font-main); font-size: 0.85rem; font-weight: 600; cursor: pointer; outline: none;">
+                <option value="default">🎨 Sporty Purple</option>
+                <option value="carbon">⚫ Dark Carbon</option>
+                <option value="classic">🔵 Classic Broadcast</option>
+                <option value="glass">💠 Glassmorphism</option>
+                <option value="neon">💚 Cyber Neon</option>
+            </select>
         </nav>
     </header>
 

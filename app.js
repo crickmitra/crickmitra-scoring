@@ -60,7 +60,8 @@ const getInitialState = () => ({
     currentBowlerIndex: 0, // Index in bowlingCard
     matchEnded: false,
     matchResult: '',
-    isChromaMode: 'green' // green, blue, trans (for stream overlay)
+    isChromaMode: 'green', // green, blue, trans (for stream overlay)
+    overlayTheme: 'default' // default, carbon, classic, glass, neon
 });
 
 // App State
@@ -119,6 +120,12 @@ function openViewerPopup() {
             viewerWindow.updateFromParent(state);
         }
     }, 600);
+}
+
+// Change Overlay Theme from Scorer Dashboard
+function changeOverlayTheme(themeName) {
+    state.overlayTheme = themeName;
+    saveAndSync();
 }
 
 // Save state and notify other tabs
